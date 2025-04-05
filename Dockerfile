@@ -1,17 +1,20 @@
 FROM ghcr.io/open-webui/open-webui:main
 
-# 1. Create directories FIRST with permissions
-RUN mkdir -p /app/data && \
-    chmod -R 777 /app/data && \
-    mkdir -p /root/.config/git && \
-    chmod 777 /root/.config /root/.config/git
+# Set default environment variables
+ENV WEBUI_SECRET_KEY=$WEBUI_SECRET_KEY
+ENV OLLAMA_API_BASE_URL=$OLLAMA_API_BASE_URL
 
-# 2. Sync script setup
+# Fix permissions upfront
+RUN mkdir -p /app/data /root/.config/git && \
+    chmod -R 777 /app /app/data /root/.config
+
+# Copy sync script
 COPY sync_data.sh /app/sync_data.sh
 RUN chmod +x /app/sync_data.sh
 
-# 3. Auto-start sync
+# Auto-start sync
 RUN echo "/app/sync_data.sh &" >> /app/start.sh
 
 WORKDIR /app
+
 
