@@ -1,19 +1,17 @@
-# This is your MAIN Dockerfile that defines the build
 FROM ghcr.io/open-webui/open-webui:main
 
-# Fix permission issues
-RUN mkdir -p /root/.config/git && \
-    chmod 777 /root/.config /root/.config/git && \
-    chmod 777 /app
+# 1. Create directories FIRST with permissions
+RUN mkdir -p /app/data && \
+    chmod -R 777 /app/data && \
+    mkdir -p /root/.config/git && \
+    chmod 777 /root/.config /root/.config/git
 
-# Copy sync script (from GitHub to container)
-COPY --chmod=777 sync_data.sh /app/sync_data.sh
+# 2. Sync script setup
+COPY sync_data.sh /app/sync_data.sh
+RUN chmod +x /app/sync_data.sh
 
-# Set up data directory
-RUN mkdir -p /app/data && chmod -R 777 /app/data
-
-# Automatically start sync script
+# 3. Auto-start sync
 RUN echo "/app/sync_data.sh &" >> /app/start.sh
 
-# Set working directory
 WORKDIR /app
+
